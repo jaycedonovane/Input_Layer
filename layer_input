@@ -1,0 +1,47 @@
+import pynput
+import tkinter as tk
+
+class App:
+  def __init__(self, master):
+    self.master = master
+    self.buttons = {}
+    self.create_widgets()
+    self.keyboard_listener = pynput.keyboard.Listener(on_press=self.on_key_press, on_release=self.on_key_release)
+    self.keyboard_listener.start()
+
+  def create_widgets(self):
+    for text, key, color, row, column in (('Z', 'z', 'red', 0, 1), ('Q', 'q', 'green', 1, 0), ('S', 's', 'grey', 1, 1), 
+    ('D', 'd', 'blue', 1, 2), ('Dash', 'space', 'violet', 2, 1),('Saut!', 'v', 'yellow', 2, 2), ('Verrouillage', 'w', 'brown', 2,0 ), ('Parry', 'a', 'brown', 0,0 )):
+      self.create_button(text, key, color, row, column)
+    self.buttons['z'][0].focus_set()
+
+  def create_button(self, text, key, color, row, column):
+    button = tk.Button(self.master, text=text, width=10, height=5, relief='solid', highlightthickness=4, takefocus=True)
+    button.bind('<Button-1>', lambda event: button.focus_set())
+    button.grid(row=row, column=column, padx=5, pady=5)
+    self.buttons[key] = (button, color)
+
+  def on_key_press(self, key):
+    if key == pynput.keyboard.Key.space:
+      key_name = 'space'
+    else:
+      key_name = getattr(key, 'char', None)
+    if key_name in self.buttons:
+      self.change_button_color(key_name, self.buttons[key_name][1])
+
+  def on_key_release(self, key):
+    if key == pynput.keyboard.Key.space:
+      key_name = 'space'
+    else:
+      key_name = getattr(key, 'char', None)
+    if key_name in self.buttons:
+      self.change_button_color(key_name, 'SystemButtonFace')
+
+  def change_button_color(self, key, color):
+    self.buttons[key][0].configure(background=color)
+
+root = tk.Tk()
+root.title("Input Layer")
+app = App(root)
+
+root.mainloop()
